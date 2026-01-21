@@ -1,12 +1,40 @@
 "use client";
 
-import { useFrontendTool, useHumanInTheLoop } from "@copilotkit/react-core";
+import { useState } from "react";
+import { useFrontendTool, useHumanInTheLoop, useCopilotReadable } from "@copilotkit/react-core";
 import { WeatherCard } from "../components/WeatherCard";
 import { StockCard } from "../components/StockCard";
 import { TaskCard } from "../components/TaskCard";
 import { MeetingConfirmationDialog } from "../components/MeetingConfirmationDialog";
+import { ColleagueCard } from "../components/ColleagueCard";
+import { MeetingCard } from "../components/MeetingCard";
 
 export function useDemoActions() {
+  // ============ READABLE CONTEXT DATA ============
+
+  const [colleagues] = useState([
+    { id: 1, name: "John Doe", role: "Developer" },
+    { id: 2, name: "Jane Smith", role: "Designer" },
+    { id: 3, name: "Bob Wilson", role: "Product Manager" },
+  ]);
+
+  const [meetings] = useState([
+    { id: 1, title: "Sprint Planning", date: "Monday 10am", attendees: ["John", "Jane"] },
+    { id: 2, title: "Design Review", date: "Wednesday 2pm", attendees: ["Jane", "Bob"] },
+  ]);
+
+  useCopilotReadable({
+    description: "The current user's colleagues with their names and roles",
+    value: colleagues,
+  });
+
+  useCopilotReadable({
+    description: "The user's upcoming scheduled meetings with dates and attendees",
+    value: meetings,
+  });
+
+  // ============ FRONTEND TOOLS ============
+
   // Weather action - renders a weather card in the chat
   useFrontendTool({
     name: "showWeather",
@@ -170,7 +198,7 @@ export function useDemoActions() {
   });
 
   // human in the loop action for scheduling meetings
-  useHumanInTheLoop({ 
+  useHumanInTheLoop({
     name: "handleMeeting",
     description: "Handle a meeting by booking or canceling",
     parameters: [
@@ -204,6 +232,86 @@ export function useDemoActions() {
           onCancel={() => respond?.('meeting canceled')}
         />
       );
+    },
+  });
+
+  // ============ CONTEXT DATA DISPLAY TOOLS ============
+
+  // Show colleagues - all or filtered by name
+  useFrontendTool({
+    name: "showColleagues",
+    description: "Display colleague information. Use this when the user asks about colleagues, team members, or a specific person.",
+    parameters: [
+      {
+        name: "filterName",
+        type: "string",
+        description: "Optional: filter to show only colleagues whose name contains this string. Leave empty to show all.",
+        required: false,
+      },
+    ],
+    render: ({ args }) => {
+      const { filterName } = args;
+
+      if (filterName) {
+        const filtered = colleagues.filter(c =>
+          c.name.toLowerCase().includes(filterName.toLowerCase())
+        );
+        if (filtered.length === 1) {
+          return <ColleagueCard colleague={filtered[0]} />;
+        }
+        return <ColleagueCard colleagues={filtered.length > 0 ? filtered : colleagues} />;
+      }
+
+      return <ColleagueCard colleagues={colleagues} />;
+    },
+    handler: async ({ filterName }) => {
+      if (filterName) {
+        const filtered = colleagues.filter(c =>
+          c.name.toLowerCase().includes(filterName.toLowerCase())
+        );
+        return `Found ${filtered.length} colleague(s) matching "${filterName}"`;
+      }
+      return `Showing all ${colleagues.length} colleagues`;
+    },
+  });
+
+  // Show meetings - all or filtered by title/attendee
+  useFrontendTool({
+    name: "showMeetings",
+    description: "Display meeting information. Use this when the user asks about meetings, schedule, or a specific meeting.",
+    parameters: [
+      {
+        name: "filterText",
+        type: "string",
+        description: "Optional: filter to show only meetings whose title or attendees contain this string. Leave empty to show all.",
+        required: false,
+      },
+    ],
+    render: ({ args }) => {
+      const { filterText } = args;
+
+      if (filterText) {
+        const filtered = meetings.filter(m =>
+          m.title.toLowerCase().includes(filterText.toLowerCase()) ||
+          m.attendees.some(a => a.toLowerCase().includes(filterText.toLowerCase()))
+        );
+        if (filtered.length === 1) {
+          return <MeetingCard meeting={filtered[0]} />;
+        }
+        return <MeetingCard meetings={filtered.length > 0 ? filtered : meetings} />;
+      }
+
+      return <MeetingCard meetings={meetings} />;
+    },
+    handler: async ({ filterText }) => {
+      if (filterText) {
+        const filtered = meetings.filter(m =>
+          m.title.toLowerCase().includes(filterText.toLowerCase()) ||
+          m.attendees.some(a => a.toLowerCase().includes(filterText.toLowerCase()))
+        );
+        return `Found ${filtered.length} meeting(s) matching "${filterText}"`;
+      }
+      return `Showing all ${meetings.length} upcoming meetings`;
     },
   });
 }
