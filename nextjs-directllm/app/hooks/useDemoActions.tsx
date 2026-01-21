@@ -1,13 +1,14 @@
 "use client";
 
-import { useCopilotAction } from "@copilotkit/react-core";
+import { useFrontendTool, useHumanInTheLoop } from "@copilotkit/react-core";
 import { WeatherCard } from "../components/WeatherCard";
 import { StockCard } from "../components/StockCard";
 import { TaskCard } from "../components/TaskCard";
+import { MeetingConfirmationDialog } from "../components/MeetingConfirmationDialog";
 
 export function useDemoActions() {
   // Weather action - renders a weather card in the chat
-  useCopilotAction({
+  useFrontendTool({
     name: "showWeather",
     description: "Display weather information for a location. Use this when the user asks about weather.",
     parameters: [
@@ -59,7 +60,7 @@ export function useDemoActions() {
   });
 
   // Stock action - renders a stock card in the chat
-  useCopilotAction({
+  useFrontendTool({
     name: "showStock",
     description: "Display stock/price information. Use this when the user asks about stocks or stock prices.",
     parameters: [
@@ -117,7 +118,7 @@ export function useDemoActions() {
   });
 
   // Task action - renders a task card in the chat
-  useCopilotAction({
+  useFrontendTool({
     name: "createTask",
     description: "Create and display a task card. Use this when the user wants to create a task, todo, or reminder.",
     parameters: [
@@ -165,6 +166,44 @@ export function useDemoActions() {
     },
     handler: async ({ title, description, priority, dueDate }) => {
       return `Task created: "${title}" with ${priority} priority${dueDate ? `, due ${dueDate}` : ""}`;
+    },
+  });
+
+  // human in the loop action for scheduling meetings
+  useHumanInTheLoop({ 
+    name: "handleMeeting",
+    description: "Handle a meeting by booking or canceling",
+    parameters: [
+      {
+        name: "meeting",
+        type: "string",
+        description: "The meeting to handle",
+        required: true,
+      },
+      {
+        name: "date",
+        type: "string",
+        description: "The date of the meeting",
+        required: true,
+      },
+      {
+        name: "title",
+        type: "string",
+        description: "The title of the meeting",
+        required: true,
+      },
+    ],
+    render: ({ args, respond, status }) => {
+      const { meeting, date, title } = args;
+      return (
+        <MeetingConfirmationDialog
+          meeting={meeting}
+          date={date}
+          title={title}
+          onConfirm={() => respond?.('meeting confirmed')}
+          onCancel={() => respond?.('meeting canceled')}
+        />
+      );
     },
   });
 }
