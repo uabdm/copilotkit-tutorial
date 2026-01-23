@@ -53,13 +53,13 @@ const studentDatabase: Record<string, {
 export function useStudentLookup() {
   useCopilotAction({
     name: "lookupStudent",
-    description: "Looks up student information by name. Available students: John Smith, Sarah Johnson, Mike Chen, Emily Davis.",
+    description: "Display student information. Use when the user asks about students, a specific student, or wants to see all students. Leave studentQuery empty to show all students.",
     parameters: [
       {
         name: "studentQuery",
         type: "string",
-        description: "The student name to search for",
-        required: true,
+        description: "Optional: student name to search for. Leave empty to show all students.",
+        required: false,
       },
     ],
     handler: async ({ studentQuery }) => {
@@ -68,12 +68,19 @@ export function useStudentLookup() {
       // Simulate network delay
       await new Promise((resolve) => setTimeout(resolve, 500));
 
+      // If no query provided, return all students
+      if (!studentQuery) {
+        const allStudents = Object.values(studentDatabase);
+        console.log("[lookupStudent] Returning all students:", allStudents.length);
+        return { students: allStudents };
+      }
+
       const key = studentQuery.toLowerCase();
       const student = studentDatabase[key];
 
       if (student) {
         console.log("[lookupStudent] Found student:", student);
-        return student;
+        return { student };
       }
 
       console.log("[lookupStudent] Student not found");
@@ -86,7 +93,9 @@ export function useStudentLookup() {
             <div className="flex items-center gap-2">
               <div className="w-4 h-4 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
               <span className="text-sm text-zinc-600 dark:text-zinc-400">
-                Looking up student: {args.studentQuery}...
+                {args.studentQuery
+                  ? `Looking up student: ${args.studentQuery}...`
+                  : "Loading all students..."}
               </span>
             </div>
           </div>
@@ -105,21 +114,26 @@ export function useStudentLookup() {
           );
         }
 
-        return (
-          <div className="my-2">
-            <StudentCard
-              name={result.name}
-              studentId={result.studentId}
-              major={result.major}
-              gpa={result.gpa}
-              enrollmentStatus={result.enrollmentStatus}
-              creditsCompleted={result.creditsCompleted}
-            />
-          </div>
-        );
+        // Handle multiple students
+        if (result.students) {
+          return (
+            <div className="my-2">
+              <StudentCard students={result.students} />
+            </div>
+          );
+        }
+
+        // Handle single student
+        if (result.student) {
+          return (
+            <div className="my-2">
+              <StudentCard student={result.student} />
+            </div>
+          );
+        }
       }
 
-      return <> </>;
+      return null;
     },
   });
 }
