@@ -245,7 +245,7 @@ export function useDemoActions() {
       {
         name: "filterName",
         type: "string",
-        description: "Optional: filter to show only colleagues whose name contains this string. Leave empty to show all.",
+        description: "Optional: filter to show only colleagues whose name contains this string or role. Leave empty to show all.",
         required: false,
       },
     ],
@@ -254,7 +254,8 @@ export function useDemoActions() {
 
       if (filterName) {
         const filtered = colleagues.filter(c =>
-          c.name.toLowerCase().includes(filterName.toLowerCase())
+          c.name.toLowerCase().includes(filterName.toLowerCase()) ||
+          c.role.toLowerCase().includes(filterName.toLowerCase())
         );
         if (filtered.length === 1) {
           return <ColleagueCard colleague={filtered[0]} />;
@@ -267,7 +268,8 @@ export function useDemoActions() {
     handler: async ({ filterName }) => {
       if (filterName) {
         const filtered = colleagues.filter(c =>
-          c.name.toLowerCase().includes(filterName.toLowerCase())
+          c.name.toLowerCase().includes(filterName.toLowerCase()) ||
+          c.role.toLowerCase().includes(filterName.toLowerCase())
         );
         return `Found ${filtered.length} colleague(s) matching "${filterName}"`;
       }
@@ -283,7 +285,7 @@ export function useDemoActions() {
       {
         name: "filterText",
         type: "string",
-        description: "Optional: filter to show only meetings whose title or attendees contain this string. Leave empty to show all.",
+        description: "Optional: filter to show only meetings whose title or attendees or days/dates contain this string. Leave empty to show all.",
         required: false,
       },
     ],
@@ -293,6 +295,7 @@ export function useDemoActions() {
       if (filterText) {
         const filtered = meetings.filter(m =>
           m.title.toLowerCase().includes(filterText.toLowerCase()) ||
+          m.date.toLowerCase().includes(filterText.toLowerCase()) ||
           m.attendees.some(a => a.toLowerCase().includes(filterText.toLowerCase()))
         );
         if (filtered.length === 1) {
@@ -307,6 +310,7 @@ export function useDemoActions() {
       if (filterText) {
         const filtered = meetings.filter(m =>
           m.title.toLowerCase().includes(filterText.toLowerCase()) ||
+          m.date.toLowerCase().includes(filterText.toLowerCase()) ||
           m.attendees.some(a => a.toLowerCase().includes(filterText.toLowerCase()))
         );
         return `Found ${filtered.length} meeting(s) matching "${filterText}"`;
