@@ -39,5 +39,14 @@
     "gpa": 2.5,
     "creditsCompleted": 50,
     "studentId": "STU-2026-446"
+  },
+  "morpheus": {
+    "name": "Morpheus",
+    "email": "morpheus@matrix.com",
+    "major": "Psychology",
+    "enrollmentStatus": "full-time",
+    "gpa": 4,
+    "creditsCompleted": 100,
+    "studentId": "STU-2026-895"
   }
 }

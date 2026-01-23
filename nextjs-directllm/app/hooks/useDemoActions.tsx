@@ -266,17 +266,27 @@ export function useDemoActions() {
                   body: JSON.stringify(data)
                 });
                 
+                const result = await response.json();
+                
                 if (response.ok) {
-                  const result = await response.json();
                   console.log("Student enrolled successfully:", result);
-                  alert(`Student ${data.name} enrolled successfully!`);
+                  return { 
+                    success: true, 
+                    student: { ...data, studentId: result.student.studentId }
+                  };
                 } else {
-                  console.error("Failed to enroll student");
-                  alert("Failed to enroll student. Please try again.");
+                  console.error("Failed to enroll student:", result);
+                  return { 
+                    success: false, 
+                    error: result.error || "Failed to enroll student"
+                  };
                 }
               } catch (error) {
                 console.error("Error enrolling student:", error);
-                alert("Error enrolling student. Please try again.");
+                return { 
+                  success: false, 
+                  error: "Network error. Please check your connection and try again."
+                };
               }
             }}
             onCancel={() => {
