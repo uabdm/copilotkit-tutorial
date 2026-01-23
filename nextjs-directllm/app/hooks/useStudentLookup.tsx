@@ -3,48 +3,11 @@
 import { useCopilotAction } from "@copilotkit/react-core";
 import { StudentCard } from "../components/StudentCard";
 
-// Simulated student database
-const studentDatabase: Record<string, {
-  name: string;
-  studentId: string;
-  major: string;
-  gpa: number;
-  enrollmentStatus: "full-time" | "part-time" | "graduated";
-  creditsCompleted: number;
-}> = {
-  "john smith": {
-    name: "John Smith",
-    studentId: "STU-2024-001",
-    major: "Computer Science",
-    gpa: 3.75,
-    enrollmentStatus: "full-time",
-    creditsCompleted: 89,
-  },
-  "sarah johnson": {
-    name: "Sarah Johnson",
-    studentId: "STU-2023-042",
-    major: "Data Science",
-    gpa: 3.92,
-    enrollmentStatus: "full-time",
-    creditsCompleted: 112,
-  },
-  "mike chen": {
-    name: "Mike Chen",
-    studentId: "STU-2022-108",
-    major: "Electrical Engineering",
-    gpa: 3.45,
-    enrollmentStatus: "part-time",
-    creditsCompleted: 145,
-  },
-  "emily davis": {
-    name: "Emily Davis",
-    studentId: "STU-2021-033",
-    major: "Business Administration",
-    gpa: 3.88,
-    enrollmentStatus: "graduated",
-    creditsCompleted: 128,
-  },
-};
+async function fetchStudents(query?: string) {
+  const url = query ? `/api/students?query=${encodeURIComponent(query)}` : '/api/students';
+  const response = await fetch(url);
+  return response.json();
+}
 
 /**
  * Frontend action using useCopilotAction with render property.
@@ -65,26 +28,14 @@ export function useStudentLookup() {
     handler: async ({ studentQuery }) => {
       console.log("[lookupStudent] Called with studentQuery:", studentQuery);
 
-      // Simulate network delay
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
-      // If no query provided, return all students
-      if (!studentQuery) {
-        const allStudents = Object.values(studentDatabase);
-        console.log("[lookupStudent] Returning all students:", allStudents.length);
-        return { students: allStudents };
+      try {
+        const result = await fetchStudents(studentQuery);
+        console.log("[lookupStudent] API result:", result);
+        return result;
+      } catch (error) {
+        console.error("[lookupStudent] API error:", error);
+        return { error: "Failed to fetch student data" };
       }
-
-      const key = studentQuery.toLowerCase();
-      const student = studentDatabase[key];
-
-      if (student) {
-        console.log("[lookupStudent] Found student:", student);
-        return { student };
-      }
-
-      console.log("[lookupStudent] Student not found");
-      return { error: "Student not found", query: studentQuery };
     },
     render: ({ args, status, result }) => {
       if (status === "executing") {

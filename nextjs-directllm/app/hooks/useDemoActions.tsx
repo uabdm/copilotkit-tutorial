@@ -6,6 +6,7 @@ import { WeatherCard } from "../components/WeatherCard";
 import { StockCard } from "../components/StockCard";
 import { TaskCard } from "../components/TaskCard";
 import { MeetingConfirmationDialog } from "../components/MeetingConfirmationDialog";
+import { StudentEnrollmentDialog } from "../components/StudentEnrollmentDialog";
 import { ColleagueCard } from "../components/ColleagueCard";
 import { MeetingCard } from "../components/MeetingCard";
 
@@ -232,6 +233,64 @@ export function useDemoActions() {
           onCancel={() => respond?.('meeting canceled')}
         />
       );
+    },
+  });
+
+  // student enrollment form - using frontend tool for better AI recognition
+  useFrontendTool({
+    name: "showEnrollmentForm",
+    description: "Display the student enrollment form. Use this when the user wants to enroll, register, add a new student, or see the enrollment form.",
+    parameters: [
+      {
+        name: "studentName",
+        type: "string",
+        description: "The student's name (optional, can be filled in form)",
+        required: false,
+      },
+    ],
+    render: ({ status, args }) => {
+      const { studentName } = args;
+      
+      return (
+        <div className="my-4">
+          <StudentEnrollmentDialog
+            name={studentName || ""}
+            email=""
+            major=""
+            enrollmentStatus="full-time"
+            onConfirm={async (data) => {
+              try {
+                const response = await fetch('/api/students', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(data)
+                });
+                
+                if (response.ok) {
+                  const result = await response.json();
+                  console.log("Student enrolled successfully:", result);
+                  alert(`Student ${data.name} enrolled successfully!`);
+                } else {
+                  console.error("Failed to enroll student");
+                  alert("Failed to enroll student. Please try again.");
+                }
+              } catch (error) {
+                console.error("Error enrolling student:", error);
+                alert("Error enrolling student. Please try again.");
+              }
+            }}
+            onCancel={() => {
+              console.log("Student enrollment canceled");
+            }}
+          />
+          {status === "inProgress" && (
+            <p className="text-xs text-zinc-500 mt-2">Loading enrollment form...</p>
+          )}
+        </div>
+      );
+    },
+    handler: async ({ studentName }) => {
+      return `Showing enrollment form${studentName ? ` for ${studentName}` : ""}`;
     },
   });
 

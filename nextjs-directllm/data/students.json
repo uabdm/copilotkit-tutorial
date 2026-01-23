@@ -1,0 +1,43 @@
+{
+  "john smith": {
+    "name": "John Smith",
+    "studentId": "STU-2024-001",
+    "major": "Computer Science",
+    "gpa": 3.75,
+    "enrollmentStatus": "full-time",
+    "creditsCompleted": 89
+  },
+  "sarah johnson": {
+    "name": "Sarah Johnson",
+    "studentId": "STU-2023-042",
+    "major": "Data Science",
+    "gpa": 3.92,
+    "enrollmentStatus": "full-time",
+    "creditsCompleted": 112
+  },
+  "mike chen": {
+    "name": "Mike Chen",
+    "studentId": "STU-2022-108",
+    "major": "Electrical Engineering",
+    "gpa": 3.45,
+    "enrollmentStatus": "part-time",
+    "creditsCompleted": 145
+  },
+  "emily davis": {
+    "name": "Emily Davis",
+    "studentId": "STU-2021-033",
+    "major": "Business Administration",
+    "gpa": 3.88,
+    "enrollmentStatus": "graduated",
+    "creditsCompleted": 128
+  },
+  "thomas": {
+    "name": "Thomas Anderson",
+    "email": "neo@matrix.com",
+    "major": "Computer Science",
+    "enrollmentStatus": "full-time",
+    "gpa": 2.5,
+    "creditsCompleted": 50,
+    "studentId": "STU-2026-446"
+  }
+}
