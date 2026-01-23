@@ -56,7 +56,7 @@ export function useUserLookup() {
         );
       }
 
-      return null;
+      return <> </>;
     },
   });
 }
